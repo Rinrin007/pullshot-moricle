@@ -29,11 +29,18 @@ import '../public/style.css';
     await Assets.load(IMAGES.mgsn)
   ];
 
+  // 初期配置座標
+  const positions = [
+    { x: app.screen.width / 2, y: app.screen.height * 2 / 3 },
+    { x: app.screen.width / 3, y: app.screen.height / 3 },
+    { x: app.screen.width * 2 / 3, y: app.screen.height / 3 },
+  ];
+
   //ボール生成
   for (let i = 0; i < 3; i++) {
     const ballContainer = new Container();
-    ballContainer.x = app.screen.width / (i + 1);
-    ballContainer.y = app.screen.height / 3;
+    ballContainer.x = positions[i].x;
+    ballContainer.y = positions[i].y;
     app.stage.addChild(ballContainer);
 
     const circle = new Graphics();
@@ -60,211 +67,102 @@ import '../public/style.css';
     });
   }
 
-  // 一つ目のボールコンテナを作成
-  const ballcontainer01 = new Container();
-  ballcontainer01.x = app.screen.width / 2;
-  ballcontainer01.y = app.screen.height * 2 / 3;
-  app.stage.addChild(ballcontainer01);
-  // 二つ目と三つ目のボールコンテナを作成
-  const ballcontainer02 = new Container();
-  ballcontainer02.x = app.screen.width / 3;
-  ballcontainer02.y = app.screen.height / 3;
-  app.stage.addChild(ballcontainer02);
-  // 三つ目のボールコンテナを作成
-  const ballcontainer03 = new Container();
-  ballcontainer03.x = app.screen.width * 2 / 3;
-  ballcontainer03.y = app.screen.height / 3;
-  app.stage.addChild(ballcontainer03);
   // ドラッグパスのグラフィックスを作成
   const dragPath = new Graphics();
   app.stage.addChild(dragPath);
 
-  //一つ目のボール背景の円
-  const circle01 = new Graphics();
-  circle01.beginFill(0xffffff, 1); // 白い円
-  circle01.drawCircle(0, 0, 50); // 半径60pxの円
-  circle01.endFill();
-  circle01.x = 0;
-  circle01.y = 0;
-  ballcontainer01.addChild(circle01);
 
-  //二つ目のボール背景の円
-  const circle02 = new Graphics();
-  circle02.beginFill(0xffffff, 1); // 白い円
-  circle02.drawCircle(0, 0, 50); // 半径60pxの円
-  circle02.endFill();
-  circle02.x = 0;
-  circle02.y = 0;
-  ballcontainer02.addChild(circle02);
-
-  //三つ目のボール背景の円
-  const circle03 = new Graphics();
-  circle03.beginFill(0xffffff, 1); // 白い円
-  circle03.drawCircle(0, 0, 50); // 半径60pxの円
-  circle03.endFill();
-  circle03.x = 0;
-  circle03.y = 0;
-  ballcontainer03.addChild(circle03);
-  
-  //一つ目のボールオブジェクトを定義
-  const ball01 = new Sprite(ballTextures[0]);
-  ball01.texture.baseTexture.scaleMode = SCALE_MODES.NEAREST; // SCALE_MODES.NEAREST
-  ball01.anchor.set(0.5); 
-  //const scale01 = 100 / texture01.width; // 幅100pxにスケール
-  ball01.scale.set(scale);
-  ball01.x = 0;
-  ball01.y = 5;
-  ballcontainer01.addChild(ball01);
-
-  //二つ目のボールオブジェクトを定義
-  const ball02 = new Sprite(ballTextures[1]);
-  ball02.texture.baseTexture.scaleMode = SCALE_MODES.NEAREST; // SCALE_MODES.NEAREST
-  ball02.anchor.set(0.5); 
-  //const scale02 = 100 / texture02.width; // 幅100pxにスケール
-  ball02.scale.set(scale);
-  ball02.x = 0;
-  ball02.y = 5;
-  ballcontainer02.addChild(ball02);
-
-  //三つ目のボールオブジェクトを定義
-  const ball03 = new Sprite(ballTextures[2]);
-  ball03.texture.baseTexture.scaleMode = SCALE_MODES.NEAREST; // SCALE_MODES.NEAREST
-  ball03.anchor.set(0.5); 
-  //const scale03 = 100 / texture03.width; // 幅100pxにスケール
-  ball03.scale.set(scale);
-  ball03.x = 0;
-  ball03.y = 5;
-  ballcontainer03.addChild(ball03);
-
-  //イベント受付を有効に
-  ballcontainer01.eventMode = 'static';
-  ballcontainer01.cursor = 'pointer'; // カーソル変化（デバッグ用）
-  ballcontainer02.eventMode = 'static';
-  ballcontainer02.cursor = 'pointer'; // カーソル変化（デバッグ用）
-  ballcontainer03.eventMode = 'static';
-  ballcontainer03.cursor = 'pointer'; // カーソル変化（デバッグ用）
-
-  // 状態管理
+  // ドラッグ状態管理
   let dragging = false;
+  let dragTarget: Ball | null = null;
   let startX = 0;
   let startY = 0;
-  let vx = 0;
-  let vy = 0;
 
-  // 一つ目ポインターダウン
-  ballcontainer01.on('pointerdown', (event) => {
-    dragging = true;
-    vx = 0;
-    vy = 0;
-    const s_pos = event.global;
-    startX = s_pos.x;
-    startY = s_pos.y;
-    ballcontainer01.x = s_pos.x;
-    ballcontainer01.y = s_pos.y;
-  });
-  // 二つ目ポインターダウン
-  ballcontainer02.on('pointerdown', (event) => {
-    dragging = true;
-    vx = 0;
-    vy = 0;
-    const s_pos = event.global;
-    startX = s_pos.x;
-    startY = s_pos.y;
-    ballcontainer02.x = s_pos.x;
-    ballcontainer02.y = s_pos.y;
-  });
-  // 三つ目ポインターダウン
-  ballcontainer03.on('pointerdown', (event) => {
-    dragging = true;
-    vx = 0;
-    vy = 0;
-    const s_pos = event.global;
-    startX = s_pos.x;
-    startY = s_pos.y;
-    ballcontainer03.x = s_pos.x;
-    ballcontainer03.y = s_pos.y;
-  });
+  // ドラッグ開始
+  for (const ball of balls) {
+    ball.container.eventMode = 'static';
+    ball.container.cursor = 'pointer';
+    ball.container.on('pointerdown', (event) => {
+      dragging = true;
+      dragTarget = ball;
+      ball.vx = 0;
+      ball.vy = 0;
+      const pos = event.global;
+      startX = pos.x;
+      startY = pos.y;
+      ball.container.x = pos.x;
+      ball.container.y = pos.y;
+    });
+  }
 
   window.addEventListener('pointerup', (event) => {
-    if (!dragging) return;
-    dragging = false;
+    if (dragging && dragTarget) {
+      dragging = false;
+      dragPath.clear();
 
-    dragPath.removeChildren(); // ← 点をすべて削除
+      const dx = dragTarget.container.x - startX;
+      const dy = dragTarget.container.y - startY;
 
-    // pointerup時の座標を取得
-    // Pixiのeventではないため clientX/Y を使う
-    //const rect = app.canvas.getBoundingClientRect();
-    const posX = ballcontainer01.x;//event.clientX - rect.left;
-    const posY = ballcontainer01.y;//event.clientY - rect.top;
-
-    const dx = posX - startX;
-    const dy = posY - startY;
-
-    vx = dx * -0.2;
-    vy = dy * -0.2;
+      dragTarget.vx = -dx * 0.2;
+      dragTarget.vy = -dy * 0.2;
+      dragTarget = null;
+    }
   });
 
   // ドラッグ中：ボールをマウスに追従させる
   window.addEventListener('pointermove', (event) => {
-    if (dragging) {
-      //const pos = event.global;
+    if (dragging && dragTarget) {
       const rect = app.canvas.getBoundingClientRect();
-      const posX = event.clientX -rect.left; // Pixiのeventではないため clientX/Y を使う
+      const posX = event.clientX - rect.left;
       const posY = event.clientY - rect.top;
-      const pos = { x: posX, y: posY };
-      ballcontainer01.x = pos.x;
-      ballcontainer01.y = pos.y;
 
-      // 点を全削除してから再描画
-      dragPath.removeChildren();
+      dragTarget.container.x = posX;
+      dragTarget.container.y = posY;
 
-      const dx = pos.x - startX;
-      const dy = pos.y - startY;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+      dragPath.clear();
+      const dx = posX - startX;
+      const dy = posY - startY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const steps = Math.floor(dist / 10);
 
-      const steps = Math.floor(distance / 10);
       for (let i = 1; i <= steps; i++) {
         const t = i / steps;
         const x = startX + dx * t;
         const y = startY + dy * t;
 
-        const dot = new Graphics();
-        dot.beginFill(0xffa500); // オレンジ
-        dot.drawCircle(0, 0, 2.5); // 半径2.5pxで直径5px
-        dot.endFill();
-        dot.x = x;
-        dot.y = y;
-        dragPath.addChild(dot);
+        dragPath.beginFill(0xffa500);
+        dragPath.drawCircle(x, y, 2.5);
+        dragPath.endFill();
       }
     }
   });
 
   // フレーム更新で移動処理
   app.ticker.add((time) => {
-    if (!dragging) {
-      ballcontainer01.x += vx;
-      ballcontainer01.y += vy;
+    for (const ball of balls) {
+      if (dragTarget === ball) continue;
 
-      // 簡易的な減速（摩擦）
-      vx *= 0.98;
-      vy *= 0.98;
+      ball.container.x += ball.vx;
+      ball.container.y += ball.vy;
 
-      // 画面外に出ないように制御
-      if (ballcontainer01.x < 50) {
-        ballcontainer01.x = 50;
-        vx *= -1; // 反発
+      ball.vx *= 0.98;
+      ball.vy *= 0.98;
+
+      if (ball.container.x < radius) {
+        ball.container.x = radius;
+        ball.vx *= -1;
       }
-      if (ballcontainer01.x > app.screen.width - 50) {
-        ballcontainer01.x = app.screen.width - 50;
-        vx *= -1; // 反発
+      if (ball.container.x > app.screen.width - radius) {
+        ball.container.x = app.screen.width - radius;
+        ball.vx *= -1;
       }
-      if (ballcontainer01.y < 50) {
-        ballcontainer01.y = 50;
-        vy *= -1; // 反発
+      if (ball.container.y < radius) {
+        ball.container.y = radius;
+        ball.vy *= -1;
       }
-      if (ballcontainer01.y > app.screen.height - 50) {
-        ballcontainer01.y = app.screen.height - 50;
-        vy *= -1; // 反発
+      if (ball.container.y > app.screen.height - radius) {
+        ball.container.y = app.screen.height - radius;
+        ball.vy *= -1;
       }
     }
   });
