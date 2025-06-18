@@ -1,4 +1,5 @@
 import { Application, Assets, Container, Sprite, Graphics, SCALE_MODES } from 'pixi.js';
+import { Sound, sound } from '@pixi/sound';
 import { IMAGES } from './assets';
 import '../public/style.css';
 
@@ -28,6 +29,8 @@ import '../public/style.css';
     await Assets.load(IMAGES.Recycle),
     await Assets.load(IMAGES.mgsn)
   ];
+  
+  sound.add('col01', 'public/sounds/cursor-move.mp3');
 
   // 初期配置座標
   const positions = [
@@ -44,7 +47,7 @@ import '../public/style.css';
     app.stage.addChild(ballContainer);
 
     const circle = new Graphics();
-    circle.beginFill(0xffffff, 1); // 白い円
+    circle.beginFill(0x00f0f0, 1); // 白い円
     circle.drawCircle(0, 0, radius); // 半径60pxの円
     circle.endFill();
     circle.x = 0;
@@ -138,7 +141,7 @@ import '../public/style.css';
   });
 
   // フレーム更新で移動処理
-  app.ticker.add((time) => {
+  app.ticker.add(() => {
     for (const ball of balls) {
       if (dragTarget === ball) continue;
 
@@ -151,18 +154,50 @@ import '../public/style.css';
       if (ball.container.x < radius) {
         ball.container.x = radius;
         ball.vx *= -1;
+        sound.play('col01');
       }
       if (ball.container.x > app.screen.width - radius) {
         ball.container.x = app.screen.width - radius;
         ball.vx *= -1;
+        sound.play('col01');
       }
       if (ball.container.y < radius) {
         ball.container.y = radius;
         ball.vy *= -1;
+        sound.play('col01');
       }
       if (ball.container.y > app.screen.height - radius) {
         ball.container.y = app.screen.height - radius;
         ball.vy *= -1;
+        sound.play('col01');
+      }
+    }
+
+    // ボール同士の衝突判定と反射
+    for (let i = 0; i < balls.length; i++) {
+      for (let j = i + 1; j < balls.length; j++) {
+        const a = balls[i];
+        const b = balls[j];
+
+        // 距離を計算
+        const dx = a.container.x - b.container.x;
+        const dy = a.container.y - b.container.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < radius * 2) {
+          // 簡易衝突反射：速度交換
+          [a.vx, b.vx] = [b.vx, a.vx];
+          [a.vy, b.vy] = [b.vy, a.vy];
+
+          // 重なりを軽く押し戻す（めり込み防止）
+          const overlap = radius * 2 - dist;
+          const pushX = (dx / dist) * (overlap / 2);
+          const pushY = (dy / dist) * (overlap / 2);
+          a.container.x += pushX;
+          a.container.y += pushY;
+          b.container.x -= pushX;
+          b.container.y -= pushY;
+        }
       }
     }
   });

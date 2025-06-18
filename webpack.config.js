@@ -19,8 +19,8 @@ module.exports = (env, argv) => ({
     rules: [
       { test: /\.ts$/, use: 'ts-loader', exclude: /node_modules/ },
       {
-      test: /\.(png|jpe?g|gif)$/i,
-      type: 'asset/resource',
+        test: /\.(png|jpe?g|gif|mp3)$/i,
+        type: 'asset/resource',
       },
       { test: /\.css$/, use: ['style-loader', 'css-loader'] },
     ],
@@ -28,7 +28,11 @@ module.exports = (env, argv) => ({
   resolve: { extensions: ['.ts', '.js'] },
   plugins: [
     new HtmlWebpackPlugin({ template: 'public/index.html' }),
-    new CopyPlugin({ patterns: [{ from: 'assets/' }] }),
+    new CopyPlugin({ patterns: [
+      { from: 'assets/' },
+      { from: 'public/style.css', to: 'style.css' },
+      { from: 'public/sounds', to: 'sounds' },
+    ] }),
   ],
   optimization: {
     minimize: argv.mode === 'production',
