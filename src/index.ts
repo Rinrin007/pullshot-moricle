@@ -22,15 +22,15 @@ import '../public/style.css';
   };
 
   const balls: Ball[] = [];
-  const radius = 50;
-  const scale = 100 / 32;
+  const radius = 30;
+  const scale = 60 / 32;
   const ballTextures = [
     await Assets.load(IMAGES.rinrin),
     await Assets.load(IMAGES.Recycle),
     await Assets.load(IMAGES.mgsn)
   ];
   
-  sound.add('col01', 'public/sounds/cursor-move.mp3');
+  sound.add('col01', 'sounds/cursor-move.mp3');
 
   // 初期配置座標
   const positions = [
@@ -182,14 +182,26 @@ import '../public/style.css';
         // 距離を計算
         const dx = a.container.x - b.container.x;
         const dy = a.container.y - b.container.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const distSq = dx * dx + dy * dy;
 
-        if (dist < radius * 2) {
-          // 簡易衝突反射：速度交換
-          [a.vx, b.vx] = [b.vx, a.vx];
-          [a.vy, b.vy] = [b.vy, a.vy];
+        if (distSq < (radius * 2) ** 2) {
+          const dvx = a.vx - b.vx;
+          const dvy = a.vy - b.vy;
 
-          // 重なりを軽く押し戻す（めり込み防止）
+          const dot = (dx * dvx + dy * dvy) / distSq;
+
+          // 相手に与える速度成分（法線方向のみ）
+          const impulseX = dx * dot;
+          const impulseY = dy * dot;
+
+          // 反映（速度を調整）
+          a.vx -= impulseX;
+          a.vy -= impulseY;
+          b.vx += impulseX;
+          b.vy += impulseY;
+
+          // 重なり解消（めり込み防止）
+          const dist = Math.sqrt(distSq);
           const overlap = radius * 2 - dist;
           const pushX = (dx / dist) * (overlap / 2);
           const pushY = (dy / dist) * (overlap / 2);
@@ -197,6 +209,9 @@ import '../public/style.css';
           a.container.y += pushY;
           b.container.x -= pushX;
           b.container.y -= pushY;
+
+          // 音を鳴らす
+          sound.play('col01');
         }
       }
     }
