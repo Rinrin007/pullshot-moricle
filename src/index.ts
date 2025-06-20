@@ -22,8 +22,8 @@ import '../public/style.css';
   };
 
   const balls: Ball[] = [];
-  const radius = 50;
-  const scale = 100 / 32;
+  const radius = 75;
+  const scale = 150 / 32;
   const ballTextures = [
     await Assets.load(IMAGES.rinrin),
     await Assets.load(IMAGES.Recycle),

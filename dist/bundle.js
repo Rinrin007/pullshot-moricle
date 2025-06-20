@@ -32779,8 +32779,8 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
     // Append the application canvas to the document body
     document.body.appendChild(app.canvas);
     const balls = [];
-    const radius = 30;
-    const scale = 60 / 32;
+    const radius = 75;
+    const scale = 150 / 32;
     const ballTextures = [
         yield Assets.load(IMAGES.rinrin),
         yield Assets.load(IMAGES.Recycle),
@@ -32844,6 +32844,20 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
             ball.container.y = pos.y;
         });
     }
+    // 最初のタップで音が出るようにする
+    window.addEventListener('pointerdown', () => {
+        if (sound.context.audioContext.state === 'suspended') {
+            sound.context.audioContext.resume();
+        }
+    }, { once: true });
+    // ブラウザから離れて、戻った後に音が出るようにする
+    window.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            if (sound.context.audioContext.state === 'suspended') {
+                sound.context.audioContext.resume();
+            }
+        }
+    });
     window.addEventListener('pointerup', (event) => {
         if (dragging && dragTarget) {
             dragging = false;
@@ -32891,21 +32905,33 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
                 ball.container.x = radius;
                 ball.vx *= -1;
                 sound.play('col01');
+                if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
             }
             if (ball.container.x > app.screen.width - radius) {
                 ball.container.x = app.screen.width - radius;
                 ball.vx *= -1;
                 sound.play('col01');
+                if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
             }
             if (ball.container.y < radius) {
                 ball.container.y = radius;
                 ball.vy *= -1;
                 sound.play('col01');
+                if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
             }
             if (ball.container.y > app.screen.height - radius) {
                 ball.container.y = app.screen.height - radius;
                 ball.vy *= -1;
                 sound.play('col01');
+                if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
             }
         }
         // ボール同士の衝突判定と反射
@@ -32940,6 +32966,9 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
                     b.container.y -= pushY;
                     // 音を鳴らす
                     sound.play('col01');
+                    if (navigator.vibrate) {
+                        navigator.vibrate(100);
+                    }
                 }
             }
         }
