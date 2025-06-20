@@ -22,8 +22,8 @@ import '../public/style.css';
   };
 
   const balls: Ball[] = [];
-  const radius = 30;
-  const scale = 60 / 32;
+  const radius = 50;
+  const scale = 100 / 32;
   const ballTextures = [
     await Assets.load(IMAGES.rinrin),
     await Assets.load(IMAGES.Recycle),
@@ -98,6 +98,22 @@ import '../public/style.css';
     });
   }
 
+  // 最初のタップで音が出るようにする
+  window.addEventListener('pointerdown', () => {
+    if (sound.context.audioContext.state === 'suspended') {
+      sound.context.audioContext.resume();
+    }
+  }, { once: true });
+
+  // ブラウザから離れて、戻った後に音が出るようにする
+  window.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      if (sound.context.audioContext.state === 'suspended') {
+        sound.context.audioContext.resume();
+      }
+    }
+  });
+
   window.addEventListener('pointerup', (event) => {
     if (dragging && dragTarget) {
       dragging = false;
@@ -155,21 +171,33 @@ import '../public/style.css';
         ball.container.x = radius;
         ball.vx *= -1;
         sound.play('col01');
+        if (navigator.vibrate) {
+          navigator.vibrate(100);
+        }
       }
       if (ball.container.x > app.screen.width - radius) {
         ball.container.x = app.screen.width - radius;
         ball.vx *= -1;
         sound.play('col01');
+        if (navigator.vibrate) {
+          navigator.vibrate(100);
+        }
       }
       if (ball.container.y < radius) {
         ball.container.y = radius;
         ball.vy *= -1;
         sound.play('col01');
+        if (navigator.vibrate) {
+          navigator.vibrate(100);
+        }
       }
       if (ball.container.y > app.screen.height - radius) {
         ball.container.y = app.screen.height - radius;
         ball.vy *= -1;
         sound.play('col01');
+        if (navigator.vibrate) {
+          navigator.vibrate(100);
+        }
       }
     }
 
@@ -212,6 +240,9 @@ import '../public/style.css';
 
           // 音を鳴らす
           sound.play('col01');
+          if (navigator.vibrate) {
+            navigator.vibrate(100);
+          }
         }
       }
     }
